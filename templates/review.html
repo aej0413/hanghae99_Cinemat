@@ -1,0 +1,252 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+            crossorigin="anonymous"></script>
+
+    <link href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&display=swap" rel="stylesheet">
+
+    <title>CINE맛</title>
+
+    <style>
+        * {
+            font-family: 'Gowun Dodum', sans-serif;
+        }
+
+        .mytitle {
+            display: flex;
+            flex-direction: row;
+            align-content: center;
+            justify-content: center;
+
+            width: 95%;
+            margin-top: 20px;
+
+        }
+
+        .mytitle > img {
+            display: block;
+            margin: 0px auto 0px auto;
+        }
+
+        .mypost {
+            width: 95%;
+            max-width: 500px;
+            margin: 15px auto 0px auto;
+            padding: 20px;
+            box-shadow: 0px 0px 3px 0px darkred;
+
+            border-radius: 20px;
+
+        }
+
+        .mybtns {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: right;
+
+            margin-top: 20px;
+        }
+
+        .mybtns > button {
+            margin-right: 10px;
+        }
+
+        .mycards {
+            margin: 20px auto 0px auto;
+            width: 95%;
+            max-width: 600px;
+        }
+
+        .card {
+            margin: 15px auto 15px auto;
+            box-shadow: 0px 0px 2px 0px darkred;
+        }
+        .input-group {
+            margin-top: 15px;
+        }
+
+    </style>
+    <script>
+        $(document).ready(function () {
+            show_review();
+        });
+
+        {#리뷰 조회 API#}
+        function show_review() {
+            $('#card-box').empty()
+            $.ajax({
+                type: "GET",
+                url: "/review",
+                data: {},
+                success: function (response) {
+                    let rows = response['reviews']
+                    for (let i = 0 ; i < rows.length; i++) {
+                        let store = rows[i]['store']
+                        let distance = rows[i]['distance']
+                        let waiting = rows[i]['waiting']
+                        let taste = rows[i]['taste']
+                        let taste_image = '❤️'.repeat(taste)
+                        let star = rows[i]['star']
+                        let comment = rows[i]['comment']
+                        let star_image = '⭐️'.repeat(star)
+                        let num = rows[i]['num']
+
+                        let temp_html = ''
+
+                        temp_html = `<div class="card">
+                                            <div class="card-body">
+                                                <blockquote class="blockquote mb-0">
+                                                    <p>가게명 : ${store}</p>
+                                                    <p>거리 : ${distance}</p>
+                                                    <p>웨이팅 : ${waiting}</p>
+                                                    <p>음식 맛 : ${taste_image}</p>
+                                                    <p>총점 : ${star_image}</p>
+                                                    <p>리뷰 : ${comment}</p>
+                                                    <button onclick="delete_review(${num})" type="button" class="btn btn-danger" style="float: right; margin-left: 10px",>삭제</button>
+                                                    <button onclick="to_main()" type="button" class="btn btn-warning" style="float: right">홈</button>
+                                                </blockquote>
+                                            </div>
+                                        </div>`
+
+
+                        $('#card-box').append(temp_html)
+                    }
+                }
+            })
+        }
+
+        {#리뷰 저장 API#}
+        function save_review() {
+            let store = $('#store').val()
+            let star = $('#star').val()
+            let comment = $('#comment').val()
+            let distance = $('#distance').val()
+            let waiting = $('#waiting').val()
+            let taste =$('#taste').val()
+
+            $.ajax({
+                type: "POST",
+                url: "/review",
+                data: {store_give: store,
+                    star_give: star,
+                    comment_give: comment,
+                    distance_give: distance,
+                    waiting_give: waiting,
+                    taste_give: taste},
+                success: function (response) {
+                    alert(response["msg"])
+                    window.location.reload()
+                }
+            });
+        }
+
+        {#리뷰 삭제 API#}
+        function delete_review(num) {
+            $.ajax({
+                type: "POST",
+                url: "/review/delete",
+                data: {num_give: num},
+                success: function (response) {
+                    alert(response['msg'])
+                    window.location.reload()
+                }
+            });
+        }
+
+
+        function open_box() {
+            $('#post-box').show()
+        }
+
+        function close_box() {
+            $('#post-box').hide()
+        }
+        function to_main() {
+            window.location.href="/"
+        }
+
+    </script>
+</head>
+<body>
+<div class="mytitle">
+    <img src="https://cphoto.asiae.co.kr/listimglink/6/2010111109565719741_3.jpg" width="300" height="200px"
+         onclick="open_box()">
+</div>
+
+<div class="mypost" id="post-box">
+    <div class="form-floating mb-3">
+        <input id="store" type="text" class="form-control" style="box-shadow: 0px 0px 2px 0px darkred"
+               placeholder="가게명">
+        <label>가게명</label>
+    </div>
+
+    <div class="input-group mb-3">
+        <label class="input-group-text" for="star" style="box-shadow: 0px 0px 2px 0px darkred">거리</label>
+        <select class="form-select" id="distance" style="box-shadow: 0px 0px 2px 0px darkred">
+            <option selected>-- 선택하기 --</option>
+            <option value="엄청 가까워요!(3-5분)😍">엄청 가까워요!(3-5분)😍</option>
+            <option value="조금 걸어야 돼요!(5-10분)😀">조금 걸어야 돼요!(5-10분)😀</option>
+            <option value="거리가 멀어요!(15-20분)😱">거리가 멀어요!(15-20분)😱</option>
+        </select>
+    </div>
+    <div class="input-group mb-3">
+        <label class="input-group-text" for="star" style="box-shadow: 0px 0px 2px 0px darkred">웨이팅</label>
+        <select class="form-select" id="waiting" style="box-shadow: 0px 0px 2px 0px darkred">
+            <option selected>-- 선택하기 --</option>
+            <option value="웨이팅 없어요👍🏻">웨이팅 없어요👍🏻</option>
+            <option value="그때 그때 달라요🙂">그때 그때 달라요🙂</option>
+            <option value="조금 기다려야 돼요🫠">조금 기다려야 돼요🫠</option>
+            <option value="웨이팅 길어요😭">웨이팅 길어요😭</option>
+        </select>
+    </div>
+    <div class="input-group mb-3">
+        <label class="input-group-text" for="star" style="box-shadow: 0px 0px 2px 0px darkred">음식맛</label>
+        <select class="form-select" id="taste" style="box-shadow: 0px 0px 2px 0px darkred">
+            <option selected>-- 선택하기 --</option>
+            <option value="1">❤️</option>
+            <option value="2">❤️❤️</option>
+            <option value="3">❤️❤️❤️</option>
+            <option value="4">❤️❤️❤️❤️</option>
+            <option value="5">❤️❤️❤️❤️❤️</option>
+        </select>
+    </div>
+    <div class="input-group mb-3">
+        <label class="input-group-text" for="star" style="box-shadow: 0px 0px 2px 0px darkred">총점</label>
+        <select class="form-select" id="star" style="box-shadow: 0px 0px 2px 0px darkred">
+            <option selected>-- 선택하기 --</option>
+            <option value="1">⭐</option>
+            <option value="2">⭐⭐</option>
+            <option value="3">⭐⭐⭐</option>
+            <option value="4">⭐⭐⭐⭐</option>
+            <option value="5">⭐⭐⭐⭐⭐</option>
+        </select>
+    </div>
+    <div class="form-floating">
+        <textarea id="comment" class="form-control" style="box-shadow: 0px 0px 2px 0px darkred"
+                  placeholder="Leave a comment here"></textarea>
+        <label for="comment">리뷰 남기기</label>
+    </div>
+    <div class="mybtns">
+        <button onclick="save_review()" type="button" class="btn btn-danger">작성하기</button>
+        <button onclick="close_box()" type="button" class="btn btn-outline-danger">닫기</button>
+    </div>
+</div>
+
+<div class="mycards">
+    <div id="card-box">
+
+    </div>
+</div>
+</body>
+</html>
