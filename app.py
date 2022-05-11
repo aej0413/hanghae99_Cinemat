@@ -46,7 +46,6 @@ def review_delete():
 @app.route("/review", methods=["GET"])
 def review_get():
     review_list = list(db.review.find({}, {'_id': False}))
-    print(review_list)
     return jsonify({'reviews': review_list})
 
 if __name__ == '__main__':
